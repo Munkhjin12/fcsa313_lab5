@@ -1,0 +1,167 @@
+newman
+
+Lab05 - Registration API (FAIL)
+
+❏ T01 Happy path: идэвхтэй оюутан, урьдач хангана → OK
+↳ Setup: идэвхтэй оюутан (CS201 үзсэн)
+  PUT http://localhost:3000/students/S01_HAPPY [200 OK, 178B, 20ms]
+  ✓  Setup: идэвхтэй оюутан (CS201 үзсэн) → 200
+
+↳ Setup: CS201 урьдачтай хичээл
+  PUT http://localhost:3000/courses/C01_HAPPY [200 OK, 178B, 2ms]
+  ✓  Setup: CS201 урьдачтай хичээл → 200
+
+↳ Идэвхтэй оюутан урьдач хангахад бүртгэл амжилттай (OK)
+  POST http://localhost:3000/registrations [201 Created, 202B, 1ms]
+  1. Статус 200
+  ✓  result = OK
+  ✓  registrationID нь тоо
+
+❏ T02 Оюутан байхгүй → ERROR_NO_STUDENT
+↳ Setup: хичээл
+  PUT http://localhost:3000/courses/C02_NOSTU [200 OK, 178B, 1ms]
+  ✓  Setup: хичээл → 200
+
+↳ Байхгүй оюутан бүртгүүлэхэд ERROR_NO_STUDENT
+  POST http://localhost:3000/registrations [200 OK, 192B, 1ms]
+  ✓  Статус 200
+  ✓  result = ERROR_NO_STUDENT
+
+❏ T03 Оюутан идэвхгүй → ERROR_INACTIVE_STUDENT
+↳ Setup: идэвхгүй оюутан
+  PUT http://localhost:3000/students/S03_INACT [200 OK, 178B, 1ms]
+  ✓  Setup: идэвхгүй оюутан → 200
+
+↳ Setup: хичээл
+  PUT http://localhost:3000/courses/C03_INACT [200 OK, 178B, 1ms]
+  ✓  Setup: хичээл → 200
+
+↳ Идэвхгүй оюутан бүртгүүлэхэд ERROR_INACTIVE_STUDENT
+  POST http://localhost:3000/registrations [200 OK, 198B, 1ms]
+  ✓  Статус 200
+  ✓  result = ERROR_INACTIVE_STUDENT
+
+❏ T04 Хичээл байхгүй → ERROR_NO_COURSE
+↳ Setup: идэвхтэй оюутан
+  PUT http://localhost:3000/students/S04_NOCRS [200 OK, 178B, 3ms]
+  ✓  Setup: идэвхтэй оюутан → 200
+
+↳ Байхгүй хичээлд бүртгүүлэхэд ERROR_NO_COURSE
+  POST http://localhost:3000/registrations [200 OK, 191B, 2ms]
+  ✓  Статус 200
+  ✓  result = ERROR_NO_COURSE
+
+❏ T05 Урьдач огт хангахгүй → ERROR_PREREQUISITES
+↳ Setup: юу ч үзээгүй оюутан
+  PUT http://localhost:3000/students/S05_NOPRE [200 OK, 178B, 0µs]
+  ✓  Setup: юу ч үзээгүй оюутан → 200
+
+↳ Setup: CS201 урьдачтай хичээл
+  PUT http://localhost:3000/courses/C05_NOPRE [200 OK, 178B, 0µs]
+  ✓  Setup: CS201 урьдачтай хичээл → 200
+
+↳ Урьдач огт үзээгүй оюутанд ERROR_PREREQUISITES, missing=[CS201]
+  POST http://localhost:3000/registrations [200 OK, 215B, 1ms]
+  ✓  Статус 200
+  ✓  result = ERROR_PREREQUISITES
+  ✓  missing = ["CS201"]
+
+❏ T06 Урьдач зарим нь хангагдсан → ERROR_PREREQUISITES
+↳ Setup: CS201-ийг л үзсэн оюутан
+  PUT http://localhost:3000/students/S06_PART [200 OK, 178B, 0µs]
+  ✓  Setup: CS201-ийг л үзсэн оюутан → 200
+
+↳ Setup: CS201+CS202 урьдачтай хичээл
+  PUT http://localhost:3000/courses/C06_PART [200 OK, 178B, 1ms]
+  ✓  Setup: CS201+CS202 урьдачтай хичээл → 200
+
+↳ Урьдачийн зарим нь дутуу үед missing зөвхөн дутууг буцаана
+  POST http://localhost:3000/registrations [200 OK, 215B, 1ms]
+  ✓  Статус 200
+  ✓  result = ERROR_PREREQUISITES
+  ✓  missing = ["CS202"]
+
+❏ T07 Давхар алдаа: оюутан ч, хичээл ч байхгүй
+↳ Оюутан ба хичээл хоёулаа байхгүй үед ERROR_NO_STUDENT түрүүлнэ
+  POST http://localhost:3000/registrations [200 OK, 192B, 1ms]
+  ✓  Статус 200
+  ✓  result = ERROR_NO_STUDENT
+
+❏ T08 Давхар алдаа: идэвхгүй оюутан + урьдач дутуу
+↳ Setup: идэвхгүй, юу ч үзээгүй оюутан
+  PUT http://localhost:3000/students/S08_INACT2 [200 OK, 178B, 1ms]
+  ✓  Setup: идэвхгүй, юу ч үзээгүй оюутан → 200
+
+↳ Setup: CS201 урьдачтай хичээл
+  PUT http://localhost:3000/courses/C08_INACT2 [200 OK, 178B, 1ms]
+  ✓  Setup: CS201 урьдачтай хичээл → 200
+
+↳ Идэвхгүй + урьдач дутуу үед ERROR_INACTIVE_STUDENT түрүүлнэ
+  POST http://localhost:3000/registrations [200 OK, 198B, 0µs]
+  ✓  Статус 200
+  ✓  result = ERROR_INACTIVE_STUDENT
+
+❏ T09 Хязгаар: урьдачгүй хичээл, хоосон coursesTaken → OK
+↳ Setup: юу ч үзээгүй оюутан
+  PUT http://localhost:3000/students/S09_EMPTY [200 OK, 178B, 0µs]
+  ✓  Setup: юу ч үзээгүй оюутан → 200
+
+↳ Setup: урьдачгүй хичээл
+  PUT http://localhost:3000/courses/C09_EMPTY [200 OK, 178B, 1ms]
+  ✓  Setup: урьдачгүй хичээл → 200
+
+↳ Урьдачгүй хичээлд хоосон coursesTaken-тай оюутан бүртгүүлнэ (OK)
+  POST http://localhost:3000/registrations [201 Created, 202B, 0µs]
+  2. Статус 200
+  ✓  result = OK
+  ✓  registrationID нь тоо
+
+❏ T10 Хязгаар: courseID дутуу → 400
+↳ courseID талбар дутуу үед 400 ERROR_BAD_REQUEST
+  POST http://localhost:3000/registrations [400 Bad Request, 202B, 0µs]
+  ✓  Статус 400
+  ✓  result = ERROR_BAD_REQUEST
+
+❏ T11 Хязгаар: studentID дутуу → 400
+↳ studentID талбар дутуу үед 400 ERROR_BAD_REQUEST
+  POST http://localhost:3000/registrations [400 Bad Request, 202B, 1ms]
+  ✓  Статус 400
+  ✓  result = ERROR_BAD_REQUEST
+
+❏ T12 Хязгаар: буруу JSON → 400
+↳ Буруу JSON үед 400 ERROR_BAD_JSON
+  POST http://localhost:3000/registrations [400 Bad Request, 199B, 1ms]
+  ✓  Статус 400
+  ✓  result = ERROR_BAD_JSON
+
+┌─────────────────────────┬─────────────────┬─────────────────┐
+│                         │        executed │          failed │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│              iterations │               1 │               0 │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│                requests │              26 │               0 │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│            test-scripts │              26 │               0 │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│      prerequest-scripts │               0 │               0 │
+├─────────────────────────┼─────────────────┼─────────────────┤
+│              assertions │              42 │               2 │
+├─────────────────────────┴─────────────────┴─────────────────┤
+│ total run duration: 299ms                                   │
+├─────────────────────────────────────────────────────────────┤
+│ total data received: 625B (approx)                          │
+├─────────────────────────────────────────────────────────────┤
+│ average response time: 2ms [min: 1ms, max: 20ms, s.d.: 4ms] │
+└─────────────────────────────────────────────────────────────┘
+
+[31m  # [39m[31m failure        [39m[31m detail                                                                                                                              [39m
+[90m    [39m[90m                [39m[90m                                                                                                                                     [39m
+ 1.  AssertionError  Статус 200                                                                                                                          
+                     expected 201 to deeply equal 200                                                                                                    
+                     at assertion:0 in test-script                                                                                                       
+                     inside "T01 Happy path: идэвхтэй оюутан, урьдач хангана → OK / Идэвхтэй оюутан урьдач хангахад бүртгэл амжилттай (OK)"              
+[90m    [39m[90m                [39m[90m                                                                                                                                     [39m
+ 2.  AssertionError  Статус 200                                                                                                                          
+                     expected 201 to deeply equal 200                                                                                                    
+                     at assertion:0 in test-script                                                                                                       
+                     inside "T09 Хязгаар: урьдачгүй хичээл, хоосон coursesTaken → OK / Урьдачгүй хичээлд хоосон coursesTaken-тай оюутан бүртгүүлнэ (OK)" 
